@@ -93,6 +93,17 @@ public class UserService {
 		}
 	}
 	
+	public void follow(int sessionUid, int uid) {
+        Jedis jedis = jedisPool.getResource();
+        Transaction tx = jedis.multi();
+        tx.sadd(sessionUid+":follow", String.valueOf(uid));
+        tx.sadd(uid+":fans", String.valueOf(sessionUid));
+        tx.exec();
+        if(jedis!=null){
+            jedisPool.returnResource(jedis);
+        }
+    }
+	
 	public boolean getFollowStatus(int sessionUid, int uid){
 		Jedis jedis = jedisPool.getResource();
 		boolean following = jedis.sismember(sessionUid+":follow", String.valueOf(uid));
